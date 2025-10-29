@@ -19,7 +19,7 @@ default_args = {
 }  # params for task
 
 with DAG(
-    dag_id="pipeline",
+    dag_id="pipeline",  # type: ignore
     start_date=datetime(2025, 10, 1),
     schedule="@once",  # "00 22 * * *",
     catchup=False,
@@ -83,5 +83,41 @@ with DAG(
         print(f"Companies data saved to {filepath}")
         return filepath
 
+    @task()
+    def merge_csvs(
+        persons_path: str, companies_path: str, output_dir: str = OUTPUT_DIR
+    ) -> str:
+        merged_path = os.path.join(output_dir, "merged_data.csv")
+
+        with open(persons_path, newline="", encoding="utf-8") as f1, open(
+            companies_path, newline="", encoding="utf-8"
+        ) as f2:
+
+            persons_reader = list(csv.DictReader(f1))
+            companies_reader = list(csv.DictReader(f2))
+
+        merged_data = []
+        for i in range(min(len(persons_reader), len(companies_reader))):
+            person = persons_reader[i]
+            company = companies_reader[i]
+            merged_data.append(
+                {
+                    "firstname": person["firstname"],
+                    "lastname": person["lastname"],
+                    "email": person["email"],
+                    "company_name": company["name"],
+                    "company_email": company["email"],
+                }
+            )
+
+        with open(merged_path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=merged_data[0].keys())
+            writer.writeheader()
+            writer.writerows(merged_data)
+
+        print(f"Merged CSV saved to {merged_path}")
+        return merged_path
+
     persons_file = fetch_persons()
     companies_file = fetch_companies()
+    merged_path = merge_csvs(persons_file, companies_file)  # type: ignore
