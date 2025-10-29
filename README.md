@@ -7,3 +7,9 @@
 
 ### after adding merged csvs code
 ![alt text](<screenshots/Screenshot 2025-10-29 at 3.56.24 PM.png>)
+
+### after connecting the db
+![alt text](<screenshots/Screenshot 2025-10-29 at 4.15.43 PM.png>)
+
+### overall pipeline completed
+![alt text](<screenshots/Screenshot 2025-10-29 at 5.29.37 PM.png>)
